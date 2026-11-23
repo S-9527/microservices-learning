@@ -1,0 +1,171 @@
+# 一条命令启动全栈：MySQL + Nacos + Sentinel + Zipkin + 4 个微服务
+# 注意：所有密码均为本地学习用途，生产环境必须替换。
+
+services:
+
+  # ---------------- 基础设施 ----------------
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root123456}
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  nacos:
+    image: nacos/nacos-server:v3.1.1
+    container_name: nacos
+    environment:
+      MODE: standalone
+      # 学习环境显式关闭鉴权；生产必须开启并使用强密钥
+      NACOS_AUTH_ENABLE: "false"
+      NACOS_AUTH_TOKEN: ${NACOS_AUTH_TOKEN:-bWljcm9zZXJ2aWNlcy1sZWFybmluZy1uYWNvcy1zZWNyZXQta2V5LTMyYnl0ZXM=}
+      NACOS_AUTH_IDENTITY_KEY: learningServerIdentity
+      NACOS_AUTH_IDENTITY_VALUE: learningServerIdentityValue
+      JVM_XMS: 512m
+      JVM_XMX: 512m
+      JVM_XMN: 256m
+    ports:
+      - "8848:8848"   # OpenAPI / 客户端注册与配置
+      - "9848:9848"   # gRPC
+      - "8088:8080"   # Web 控制台（Nacos 3.x 控制台在 8080，路径 /）
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8848/nacos/ >/dev/null 2>&1 || curl -fsS http://localhost:8080/ >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+
+  # 把 configs/ 下的 yml 推送到 Nacos；完成后容器退出
+  nacos-config-init:
+    image: curlimages/curl:8.14.1
+    container_name: nacos-config-init
+    entrypoint: ["sh", "/init-configs.sh"]
+    environment:
+      NACOS_URL: http://nacos:8848
+    volumes:
+      - ./docker/nacos-init/init-configs.sh:/init-configs.sh:ro
+      - ./docker/nacos-init/configs:/configs:ro
+    depends_on:
+      nacos:
+        condition: service_healthy
+    restart: "no"
+
+  sentinel-dashboard:
+    image: bladex/sentinel-dashboard:1.8.9
+    container_name: sentinel-dashboard
+    # bladex 镜像默认监听 8858；宿主机映射 8090，避免与网关 8080 冲突
+    ports:
+      - "8090:8858"
+
+  zipkin:
+    image: openzipkin/zipkin:3.5
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+
+  # ---------------- 业务服务 ----------------
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    container_name: user-service
+    environment:
+      NACOS_SERVER: nacos:8848
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root123456}
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      nacos-config-init:
+        condition: service_completed_successfully
+
+  product-service:
+    build:
+      context: .
+      dockerfile: product-service/Dockerfile
+    container_name: product-service
+    environment:
+      NACOS_SERVER: nacos:8848
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root123456}
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      nacos-config-init:
+        condition: service_completed_successfully
+
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    container_name: order-service
+    environment:
+      NACOS_SERVER: nacos:8848
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root123456}
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      # 容器内 8858；宿主机映射为 8090
+      SENTINEL_DASHBOARD: sentinel-dashboard:8858
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      nacos-config-init:
+        condition: service_completed_successfully
+      user-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+
+  # 可观测性实验台（React + Vite + Tailwind）
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - order-service
+      - product-service
+      - zipkin
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    environment:
+      NACOS_SERVER: nacos:8848
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+    ports:
+      - "8080:8080"
+    depends_on:
+      nacos-config-init:
+        condition: service_completed_successfully
+      order-service:
+        condition: service_started
+
+volumes:
+  mysql-data:

@@ -1,0 +1,39 @@
+app:
+  greeting: "Hello from Nacos Config: api-gateway"
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/users/**
+              filters:
+                - StripPrefix=1
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/api/products/**
+              filters:
+                - StripPrefix=1
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/orders/**
+              filters:
+                - StripPrefix=1
+            # 实验/演示端点也走网关：前端不再直连 8083/8082，无需各自配 CORS
+            - id: lab-status
+              uri: lb://order-service
+              predicates:
+                - Path=/lab/**
+            - id: admin-fault
+              uri: lb://product-service
+              predicates:
+                - Path=/admin/**
+          discovery:
+            locator:
+              enabled: false

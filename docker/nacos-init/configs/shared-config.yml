@@ -1,0 +1,41 @@
+# 所有服务共享的 Nacos 配置（由各服务 spring.config.import 导入）
+spring:
+  cloud:
+    openfeign:
+      # 开启 Feign 客户端的 observation/tracing，否则 Feign 调用不会串联上下游 trace
+      micrometer:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 2000
+            readTimeout: 3000
+            loggerLevel: basic
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env,configprops,refresh,metrics,gateway
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  # Boot 4 新属性路径；同时保留旧路径作为兼容
+  tracing.export.zipkin.endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
+
+# 日志中自动带 traceId / spanId
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId:-},%X{spanId:-}]"
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:/mapper/**/*.xml

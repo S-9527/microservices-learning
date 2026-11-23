@@ -1,0 +1,15 @@
+# 白名单模式：先排除全部，再逐个放行 Dockerfile 真正需要的文件。
+# 后端 Dockerfile 需要：pom.xml + 5 个模块的 target/*.jar
+
+*                          # 排除根目录下一切
+!pom.xml                   # 父 POM
+!common/
+!api-gateway/
+!user-service/
+!product-service/
+!order-service/
+
+# 各模块内部：只放行 jar，其余（源码/target 中间产物）全部排除
+**/*
+!**/target/
+!**/target/*.jar

@@ -1,0 +1,21 @@
+app:
+  greeting: "Hello from Nacos Config: order-service"
+
+spring:
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:mysql}:3306/order_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+# Sentinel 控制台与客户端通信端口
+spring.cloud.sentinel:
+  transport:
+    dashboard: ${SENTINEL_DASHBOARD:sentinel-dashboard:8858}
+    port: 8719
+  eager: true
+  # 关闭控制台对来源信息的依赖，避免无谓报错
+  web-context-unify: false
