@@ -1,0 +1,17 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: product-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER:localhost:8848}
+        # 不配 ip：Nacos Client 会自动探测容器 IP，无需环境变量
+      config:
+        server-addr: ${NACOS_SERVER:localhost:8848}
+  config:
+    import:
+      - nacos:shared-config.yml
+      - nacos:product-service.yml?refreshEnabled=true
