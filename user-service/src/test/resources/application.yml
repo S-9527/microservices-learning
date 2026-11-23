@@ -1,0 +1,15 @@
+# 测试环境不连 Nacos / MySQL，避免单元测试依赖外部中间件
+spring:
+  application:
+    name: user-service
+  cloud:
+    nacos:
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+  datasource:
+    url: jdbc:h2:mem:userdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
