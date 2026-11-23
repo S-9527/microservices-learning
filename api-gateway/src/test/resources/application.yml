@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    nacos:
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: fallback
+              uri: http://localhost:9999
+              predicates:
+                - Path=/fallback/**

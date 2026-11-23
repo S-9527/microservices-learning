@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER:localhost:8848}
+      config:
+        server-addr: ${NACOS_SERVER:localhost:8848}
+  # 路由规则放在 Nacos 的 api-gateway.yml 中（见 docker/nacos-init/configs/）
+  config:
+    import:
+      - nacos:shared-config.yml
+      - nacos:api-gateway.yml?refreshEnabled=true
