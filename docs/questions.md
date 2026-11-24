@@ -161,7 +161,7 @@
 - 状态：已解答
 - 提出日期：2026-11-24
 - 背景：用户英语水平有限，Spring Cloud Gateway 官方文档看得头疼，希望有中文通俗版。
-- 结论：新增 [05b-Gateway通俗指南](./05b-Gateway通俗指南.md)——用「快递分拣中心」类比解释 Route/Predicate/Filter，所有概念对应项目真实配置，并附官方文档导航（按「想查什么」索引到官方页面）。已写入 AGENTS.md 用户偏好：后续讲解技术文档时优先给中文通俗版 + 项目实例。网络受限时可用 GitHub API 读官方仓库 `docs/modules/ROOT/pages/*.adoc` 源文件。
+- 结论：用户进一步明确「不要概念科普，要**操作手册** + **我遗漏了哪些特性**」。最终产出 [05b-Gateway操作手册](./05b-Gateway操作手册.md)——第一部分是 7 个照着做的操作（改路由/加路由/改路径/加头/开 actuator/配 CORS/写 GlobalFilter），第二部分是官方 14 Predicate + 37 GatewayFilter + 10+ GlobalFilter 的清单，逐项标注 ✅已用 / ⬜未用，第三部分详解最值得关注但未用的特性（网关层限流/熔断/权重灰度/DiscoveryLocator/Fluent API）。已写入 AGENTS.md 用户偏好：讲解技术优先中文 + 项目实例；网络受限时可用 GitHub API 读官方仓库 `docs/modules/ROOT/pages/*.adoc` 源文件。
 
 ---
 
