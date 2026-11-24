@@ -120,6 +120,18 @@
 
 ---
 
+### Q-015 项目从 workspace 移到子目录后，Docker Compose 要注意什么？
+- 状态：已解答
+- 提出日期：2026-11-24
+- 背景：用户把项目从 `/home/anguish/workspace` 移到 `/home/anguish/workspace/microservices-learning`，会话也随之移动。
+- 结论：
+  ① **compose 项目名默认取目录名**，从 `workspace` 变成 `microservices-learning`，旧容器/网络/卷不会被复用；若不固定项目名，应接受「重新初始化」并清理旧资源。也可在 `docker-compose.yml` 顶部加 `name: xxx` 固定（本次用户选择接受新项目名）。
+  ② **git 历史完整保留**——直接 `mv` 含 `.git` 的目录即可。
+  ③ **会话用 `session.move` 工具跟随**到新目录（工具路径是 `tools.opencode.session.move`，不是 `session_move`）。
+  ④ 移动后重新 `mvn package` + `pnpm build` + `docker compose up -d --build`，镜像名会变成 `<新目录名>-*`。
+
+---
+
 ## 待办 / 开放问题
 
 > 暂无。遇到新问题请按上方格式追加，不要修改已有条目的结论（只能追加补充说明）。
