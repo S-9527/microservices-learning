@@ -18,6 +18,7 @@
 | 03 | [03-Nacos服务注册与发现](./03-Nacos服务注册与发现.md) | 注册/心跳/拉取/服务列表 | 02 |
 | 04 | [04-服务间通信-OpenFeign](./04-服务间通信-OpenFeign.md) | 声明式 HTTP 客户端、负载均衡、错误处理 | 03 |
 | 05 | [05-API网关-Gateway](./05-API网关-Gateway.md) | Route / Predicate / Filter、新配置前缀 | 03 |
+| 05b | [05b-Gateway通俗指南](./05b-Gateway通俗指南.md) | 官方文档说人话版：快递分拣中心类比 + 项目实例 | 05 |
 | 06 | [06-Nacos配置中心](./06-Nacos配置中心.md) | dataId、spring.config.import、动态刷新 | 02 |
 | 07 | [07-Sentinel熔断限流](./07-Sentinel熔断限流.md) | 限流 / 熔断 / 降级 / Dashboard | 04 |
 | 08 | [08-链路追踪-Micrometer-Zipkin](./08-链路追踪-Micrometer-Zipkin.md) | traceId、span、采样、Zipkin UI | 04 |

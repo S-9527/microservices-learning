@@ -38,7 +38,7 @@
 - 系统学习微服务，要求**当前主流技术栈 + 真实实现**：Nacos（注册+配置）、Sentinel（容错）、真实 MySQL（不用内存模拟）。
 - 多轮对话继续项目，文档必须能独立承载上下文。
 - **在 GitHub 网页读代码** → 提交粒度小、提交信息有语义、文档用相对路径链接。
-- 语言：**中文为主，技术术语保留英文**（Service Discovery、Circuit Breaker、traceId 等）。
+- 语言：**中文为主，技术术语保留英文**（Service Discovery、Circuit Breaker、traceId 等）。用户英语水平有限，官方英文文档读起来吃力——讲解新技术时优先给**中文通俗版 + 生活类比 + 项目真实配置对照**，并附官方导航；网络受限时可通过 GitHub API 读官方仓库的 `.adoc` 文档源文件。
 - 希望问题被及时提出并记录。
 - `gh` 已登录（账号 `S-9527`），公开仓库 `microservices-learning`。
 
